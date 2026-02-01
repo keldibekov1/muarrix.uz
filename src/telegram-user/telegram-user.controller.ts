@@ -45,11 +45,11 @@ export class TelegramUserController {
     return this.service.getTotalBalance();
   }
 
-    @UseGuards(TelegramJwtGuard)
-    @Get('/me')
-    getMe(@Request() req) {
-      return this.service.getMe(req.tgUser.sub);
-    }
+  @UseGuards(TelegramJwtGuard)
+  @Get('/me')
+  getMe(@Request() req) {
+    return this.service.getMe(req.tgUser.sub);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

@@ -27,6 +27,7 @@ export class FilesController {
     return this.filesService.create(createFileDto);
   }
 
+  @UseGuards(AdminJwtGuard)
   @Get()
   @ApiQuery({ name: 'categoryId', required: false })
   findAll(@Query('categoryId') categoryId?: string) {
@@ -50,6 +51,7 @@ export class FilesController {
     );
   }
 
+  @UseGuards(AdminJwtGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.filesService.findOne(id);

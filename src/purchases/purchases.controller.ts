@@ -86,6 +86,7 @@ export class PurchasesController {
     return this.purchasesService.update(id, updatePurchaseDto);
   }
 
+  @UseGuards(AdminJwtGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.purchasesService.remove(id);
