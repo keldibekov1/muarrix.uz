@@ -181,35 +181,46 @@ export class PurchasesService {
   }));
 }
 
-  async findAll(page: number = 1, limit: number = 10) {
-    const skip = (page - 1) * limit;
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.purchase.findMany({
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          telegramUser: {
-            select: {
-              first_name: true,
-              last_name: true,
-              username: true,
-              photo_url: true,
-            },
-          },
-          file: { select: { title: true } },
-        },
-      }),
-      this.prisma.purchase.count(),
-    ]);
+async findAll(page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
 
-    return {
-      data,
-      total,
-      currentPage: page,
-      totalPages: Math.ceil(total / limit),
-    };
-  }
+  const [data, total] = await this.prisma.$transaction([
+    this.prisma.purchase.findMany({
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        telegramUser: {
+          select: {
+            first_name: true,
+            last_name: true,
+            username: true,
+            photo_url: true,
+          },
+        },
+        file: {
+          select: {
+            title: true,
+          },
+        },
+        testSet: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    }),
+    this.prisma.purchase.count(),
+  ]);
+
+  return {
+    data,
+    total,
+    currentPage: page,
+    totalPages: Math.ceil(total / limit),
+  };
+}
+
 
   async getTodaySales() {
     const now = new Date();
