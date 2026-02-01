@@ -21,6 +21,7 @@ import { TestQuestionsModule } from './test-questions/test-questions.module';
 import { QuestionGradeModule } from './question-grade/question-grade.module';
 import { QuestionTopicModule } from './question-topic/question-topic.module';
 import { QuestionModule } from './question/question.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { QuestionModule } from './question/question.module';
     QuestionGradeModule,
     QuestionTopicModule,
     QuestionModule,
+    UploadModule,
   ],
   controllers: [AppController, NotificationsController],
   providers: [AppService],
