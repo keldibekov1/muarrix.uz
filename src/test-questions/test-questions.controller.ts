@@ -46,6 +46,12 @@ export class TestQuestionsController {
   }
 
   @UseGuards(AdminJwtGuard)
+  @Get('total')
+  getTotalCount() {
+    return this.testQuestionsService.getTotalQuestionsCount();
+  }
+
+  @UseGuards(AdminJwtGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.testQuestionsService.findOne(id);

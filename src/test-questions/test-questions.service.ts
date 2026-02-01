@@ -98,6 +98,11 @@ export class TestQuestionsService {
     };
   }
 
+  async getTotalQuestionsCount() {
+    const total = await this.prisma.testQuestion.count();
+    return { total };
+  }
+
   async findOne(id: string) {
     return this.prisma.testQuestion.findUnique({ where: { id } });
   }
