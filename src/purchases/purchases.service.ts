@@ -101,10 +101,44 @@ export class PurchasesService {
   }
 
   async myPurchasesFile(telegramUserId: bigint) {
-    return this.prisma.purchase.findMany({
+    const purchases = await this.prisma.purchase.findMany({
       where: { telegramUserId, itemType: 'FILE' },
-      include: { file: true },
+      include: {
+        file: {
+          include: {
+            category: true, 
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' }, 
     });
+
+    return purchases.map((purchase) => ({
+      id: purchase.id,
+      telegramUserId: purchase.telegramUserId,
+      itemType: purchase.itemType,
+      fileId: purchase.fileId,
+      amount: purchase.amount,
+      createdAt: purchase.createdAt,
+      file: purchase.file
+        ? {
+            id: purchase.file.id,
+            title: purchase.file.title,
+            description: purchase.file.description,
+            fileUrl: purchase.file.fileUrl,
+            isFree: purchase.file.isFree,
+            price: purchase.file.price,
+            createdAt: purchase.file.createdAt,
+            category: purchase.file.category
+              ? {
+                  id: purchase.file.category.id,
+                  name: purchase.file.category.name,
+                  sortOrder: purchase.file.category.sortOrder,
+                }
+              : null,
+          }
+        : null,
+    }));
   }
 
   async findAll(page: number = 1, limit: number = 10) {
@@ -139,7 +173,7 @@ export class PurchasesService {
 
   async getTodaySales() {
     const now = new Date();
-    const uzbekTimeOffset = 5 * 60 * 60 * 1000; 
+    const uzbekTimeOffset = 5 * 60 * 60 * 1000;
     const uzbekNow = new Date(now.getTime() + uzbekTimeOffset);
     uzbekNow.setHours(0, 0, 0, 0);
     const todayUTC = new Date(uzbekNow.getTime() - uzbekTimeOffset);
