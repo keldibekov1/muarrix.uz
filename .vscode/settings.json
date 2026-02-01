@@ -1,3 +1,12 @@
+
+
 {
-    "prisma.pinToPrisma6": false
+    "editor.defaultFormatter": "<other formatter>",
+    "[javascript]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "prisma.pinToPrisma6": false,
+    "[prisma]": {
+        "editor.defaultFormatter": "Prisma.prisma"
+    }
 }

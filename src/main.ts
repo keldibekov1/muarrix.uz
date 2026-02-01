@@ -2,10 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { TelegramBotService } from './telegram-bot/telegram-bot.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  app.enableCors({
+    origin: true,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -14,6 +19,10 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  (BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+  };
 
   const config = new DocumentBuilder()
     .setTitle('IES API')

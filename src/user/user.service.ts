@@ -13,12 +13,12 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: CreateUserDto) {
-    let username = await this.prisma.user.findUnique({
-      where: { username: data.username },
+    let email = await this.prisma.user.findUnique({
+      where: { email: data.email },
     });
 
-    if (username) {
-      throw new ConflictException('Username already exists');
+    if (email) {
+      throw new ConflictException('email already exists');
     }
     let hashedPassword = await bcrypt.hash(data.password, 10);
 

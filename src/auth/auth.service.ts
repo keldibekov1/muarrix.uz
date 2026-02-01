@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateAuthDto, ResetAuthDto } from './dto/create-auth.dto';
@@ -17,25 +18,86 @@ export class AuthService {
 
   async login(data: CreateAuthDto) {
     let user = await this.prisma.user.findUnique({
-      where: { username: data.username },
+      where: { email: data.email },
     });
 
     if (!user) {
-      throw new UnauthorizedException('Username or password is incorrect');
+      throw new UnauthorizedException('email or password is incorrect');
     }
 
     let isPasswordValid = await bcrypt.compare(data.password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Username or password is incorrect');
+      throw new UnauthorizedException('email or password is incorrect');
     }
 
-    const token = this.jwtService.sign({
-      id: user.id,
-      username: user.username,
-      iat: Math.floor(Date.now() / 1000),
+    const token = this.jwtService.sign(
+      {
+        sub: user.id,
+        type: 'admin',
+        role: user.role,
+        email: user.email,
+      },
+      {
+        secret: process.env.JWT_SECRET_ADMIN,
+        expiresIn: '7d',
+      },
+    );
+
+    return { token, role: user.role };
+  }
+
+  async getMe(sub: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: sub },
     });
 
-    return { token };
+    if (!user) {
+      throw new NotFoundException('User topilmadi');
+    }
+
+    return user;
+  }
+
+  async updateMe(sub: string, data: any) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: sub },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (data.email && data.email !== user.email) {
+      const existing = await this.prisma.user.findUnique({
+        where: { email: data.email },
+      });
+
+      if (existing && existing.id !== sub) {
+        throw new UnauthorizedException('Bu email allaqachon band');
+      }
+    }
+
+    return this.prisma.user.update({
+      where: { id: sub },
+      data,
+    });
+  }
+
+  async resetPassword(sub: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: sub },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    return this.prisma.user.update({
+      where: { id: sub },
+      data: { password: hashedPassword },
+    });
   }
 }
