@@ -112,6 +112,20 @@ export class TelegramUserService {
     };
   }
 
+    async getMe(sub: bigint) {
+    const user = await this.prisma.telegramUser.findUnique({
+      where: { id: sub },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User topilmadi');
+    }
+
+    return user;
+  }
+
+
+
   async getTotalBalance() {
     const result = await this.prisma.telegramUser.aggregate({
       _sum: {

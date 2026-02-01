@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTestTopicDto } from './dto/create-test-topic.dto';
 import { UpdateTestTopicDto } from './dto/update-test-topic.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -18,11 +22,77 @@ export class TestTopicsService {
 
   async findAll(testSetId?: string) {
     return this.prisma.testTopic.findMany({
-      where: { 
+      where: {
         testSetId: testSetId,
       },
       orderBy: { sortOrder: 'asc' },
     });
+  }
+
+  async getTestTopicForTelegramUser(telegramUserId: bigint, testSetId: string) {
+    const testSet = await this.prisma.testSet.findUnique({
+      where: { id: testSetId },
+      include: {
+        subject: true,
+      },
+    });
+
+    if (!testSet) {
+      throw new NotFoundException('TestSet topilmadi');
+    }
+
+    if (testSet.isFree || testSet.price === 0) {
+      const topics = await this.prisma.testTopic.findMany({
+        where: { testSetId },
+        include: {
+          _count: {
+            select: { questions: true },
+          },
+        },
+        orderBy: { sortOrder: 'asc' },
+      });
+
+      return {
+        topics: topics.map((topic) => ({
+          id: topic.id,
+          title: topic.title,
+          sortOrder: topic.sortOrder,
+        })),
+      };
+    }
+
+    const purchase = await this.prisma.purchase.findUnique({
+      where: {
+        telegramUserId_testSetId: {
+          telegramUserId,
+          testSetId,
+        },
+      },
+    });
+
+    if (!purchase) {
+      throw new ForbiddenException(
+        "Bu testni ko'rish uchun avval sotib olishingiz kerak",
+      );
+    }
+
+    const topics = await this.prisma.testTopic.findMany({
+      where: { testSetId },
+      include: {
+        _count: {
+          select: { questions: true },
+        },
+      },
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    return {
+      topics: topics.map((topic) => ({
+        id: topic.id,
+        title: topic.title,
+        sortOrder: topic.sortOrder,
+      })),
+    };
   }
 
   async findOne(id: string) {

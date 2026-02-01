@@ -28,6 +28,44 @@ export class TestSetsService {
     });
   }
 
+  async getTestSetsForTelegramUser(telegramUserId: bigint, subjectId?: string) {
+    const testSets = await this.prisma.testSet.findMany({
+      where: subjectId ? { subjectId } : undefined,
+      include: {
+        subject: true,
+        purchases: {
+          where: { telegramUserId },
+          select: { id: true },
+        },
+        topics: {
+          select: {
+            id: true,
+            _count: {
+              select: { questions: true },
+            },
+          },
+        },
+      },
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    return testSets.map((testSet) => {
+      const purchased =
+        testSet.isFree || testSet.price === 0 || testSet.purchases.length > 0;
+
+      return {
+        id: testSet.id,
+        title: testSet.title,
+        sortOrder: testSet.sortOrder,
+        price: testSet.price,
+        isFree: testSet.isFree,
+        createdAt: testSet.createdAt,
+        subject: testSet.subject,
+        purchased,
+      };
+    });
+  }
+
   async findOne(id: string) {
     return await this.prisma.testSet.findUnique({
       where: { id },

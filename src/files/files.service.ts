@@ -33,7 +33,6 @@ export class FilesService {
       whereCondition.categoryId = categoryId;
     }
 
-    // Faqat title da qidiruv
     if (search && search.trim()) {
       whereCondition.title = {
         contains: search.trim(),

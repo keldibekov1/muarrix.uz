@@ -8,12 +8,14 @@ import {
   Delete,
   Query,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { TestSetsService } from './test-sets.service';
 import { CreateTestSetDto } from './dto/create-test-set.dto';
 import { UpdateTestSetDto } from './dto/update-test-set.dto';
 import { ApiQuery } from '@nestjs/swagger';
 import { AdminJwtGuard } from 'src/guards/AdminJwtGuard';
+import { TelegramJwtGuard } from 'src/guards/TelegramJwtGuard';
 
 @Controller('test-sets')
 export class TestSetsController {
@@ -25,12 +27,25 @@ export class TestSetsController {
     return this.testSetsService.create(data);
   }
 
+  @UseGuards(AdminJwtGuard)
   @Get()
   @ApiQuery({ name: 'subjectId', required: false })
   findAll(@Query('subjectId') subjectId?: string) {
     return this.testSetsService.findAll(subjectId);
   }
 
+  @UseGuards(TelegramJwtGuard)
+  @Get('app')
+  @ApiQuery({ name: 'subjectId', required: false })
+  tgFiles(@Request() req, @Query('subjectId') subjectId?: string) {
+    const telegramUserId = BigInt(req.tgUser.sub);
+    return this.testSetsService.getTestSetsForTelegramUser(
+      telegramUserId,
+      subjectId,
+    );
+  }
+
+  @UseGuards(AdminJwtGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.testSetsService.findOne(id);

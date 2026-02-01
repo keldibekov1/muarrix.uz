@@ -44,6 +44,12 @@ export class PurchasesController {
     const telegramUserId = BigInt(req.tgUser.sub);
     return this.purchasesService.myPurchasesFile(telegramUserId);
   }
+  @UseGuards(TelegramJwtGuard)
+  @Get('my-test')
+  myPurchasesTest(@Request() req) {
+    const telegramUserId = BigInt(req.tgUser.sub);
+    return this.purchasesService.myPurchasesTests(telegramUserId);
+  }
 
   @Get()
   @ApiQuery({ name: 'page', required: false, example: 1 })

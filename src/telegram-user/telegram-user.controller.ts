@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { TelegramUserService } from './telegram-user.service';
@@ -14,6 +15,7 @@ import { CreateTelegramUserDto } from './dto/create-telegram-user.dto';
 import { UpdateTelegramUserDto } from './dto/update-telegram-user.dto';
 import { ApiQuery } from '@nestjs/swagger';
 import { AdminJwtGuard } from 'src/guards/AdminJwtGuard';
+import { TelegramJwtGuard } from 'src/guards/TelegramJwtGuard';
 
 @Controller('telegram-users')
 export class TelegramUserController {
@@ -42,6 +44,12 @@ export class TelegramUserController {
   getTotalBalance() {
     return this.service.getTotalBalance();
   }
+
+    @UseGuards(TelegramJwtGuard)
+    @Get('/me')
+    getMe(@Request() req) {
+      return this.service.getMe(req.tgUser.sub);
+    }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

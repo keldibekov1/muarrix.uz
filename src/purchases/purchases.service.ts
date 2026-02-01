@@ -141,6 +141,46 @@ export class PurchasesService {
     }));
   }
 
+  async myPurchasesTests(telegramUserId: bigint) {
+  const purchases = await this.prisma.purchase.findMany({
+    where: { telegramUserId, itemType: 'TEST_SET' },
+    include: {
+      testSet: {
+        include: {
+          subject: true,
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return purchases.map((purchase) => ({
+    id: purchase.id,
+    telegramUserId: purchase.telegramUserId,
+    itemType: purchase.itemType,
+    testSetId: purchase.testSetId,
+    amount: purchase.amount,
+    createdAt: purchase.createdAt,
+    testSet: purchase.testSet
+      ? {
+          id: purchase.testSet.id,
+          title: purchase.testSet.title,
+          sortOrder: purchase.testSet.sortOrder,
+          isFree: purchase.testSet.isFree,
+          price: purchase.testSet.price,
+          createdAt: purchase.testSet.createdAt,
+          subject: purchase.testSet.subject
+            ? {
+                id: purchase.testSet.subject.id,
+                name: purchase.testSet.subject.name,
+                sortOrder: purchase.testSet.subject.sortOrder,
+              }
+            : null,
+        }
+      : null,
+  }));
+}
+
   async findAll(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
     const [data, total] = await this.prisma.$transaction([
