@@ -55,6 +55,23 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     } catch {}
   }
 
+  async isChannelMember(userId: bigint): Promise<boolean> {
+    const channel = process.env.TELEGRAM_CHANNEL;
+    if (!channel) {
+      throw new Error('TELEGRAM_CHANNEL missing in env');
+    }
+
+    const member = await this.bot.telegram.getChatMember(
+      channel,
+      Number(userId),
+    );
+
+    const status = member?.status;
+    return (
+      status === 'member' || status === 'administrator' || status === 'creator'
+    );
+  }
+
   async upsertUserFromStart(data: UpsertTelegramUserDto) {
     const idBigInt = BigInt(data.id);
 

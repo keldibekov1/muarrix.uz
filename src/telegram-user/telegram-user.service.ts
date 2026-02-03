@@ -8,18 +8,28 @@ import { CreateTelegramUserDto } from './dto/create-telegram-user.dto';
 import { UpdateTelegramUserDto } from './dto/update-telegram-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
+import { TelegramBotService } from 'src/telegram-bot/telegram-bot.service';
 
 @Injectable()
 export class TelegramUserService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
+    private botService: TelegramBotService,
   ) {}
 
   async login(data: CreateTelegramUserDto) {
     const tgUser = this.verifyTelegramWebApp(data.initData);
 
     const idBigInt = BigInt(String(tgUser.id));
+
+    const ok = await this.botService.isChannelMember(idBigInt);
+
+    if (!ok) {
+      throw new ForbiddenException(
+        "Web app’dan foydalanish uchun kanalga a'zo bo'ling",
+      );
+    }
 
     const user = await this.prisma.telegramUser.upsert({
       where: { id: idBigInt },
@@ -112,7 +122,7 @@ export class TelegramUserService {
     };
   }
 
-    async getMe(sub: bigint) {
+  async getMe(sub: bigint) {
     const user = await this.prisma.telegramUser.findUnique({
       where: { id: sub },
     });
@@ -123,8 +133,6 @@ export class TelegramUserService {
 
     return user;
   }
-
-
 
   async getTotalBalance() {
     const result = await this.prisma.telegramUser.aggregate({
