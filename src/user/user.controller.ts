@@ -17,7 +17,7 @@ import { AdminJwtGuard } from 'src/guards/AdminJwtGuard';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @UseGuards(AdminJwtGuard)
+  @UseGuards(AdminJwtGuard)
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
