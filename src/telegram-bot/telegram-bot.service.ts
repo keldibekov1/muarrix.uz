@@ -23,10 +23,10 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       const name = ctx.from.first_name ?? 'do‘stim';
       const text =
         `Assalomu alaykum, ${name}!\n\n` +
-        `📚 Muarrix.uz ga xush kelibsiz!\n` +
-        `Bu yerda siz:\n` +
-        `• Testlar yechasiz\n` +
-        `• Foydali materiallarni topasiz\n`;
+        `"Muarrix - Ijtimoiy fanlardan test" loyihasining ilovasiga xush kelibsiz!!!\n` +
+        `– Bu ilovada testlar yechishingiz ,
+        fanlarga doir qo‘llanmalardan  foydalanishingiz mumkin.` +
+        `– Murojaat yo'llash uchun @Muarrix_support ga yozing.`;
 
       await ctx.reply(
         text,
