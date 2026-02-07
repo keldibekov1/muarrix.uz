@@ -25,7 +25,7 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
         `Assalomu alaykum, ${name}!\n\n` +
         `"Muarrix - Ijtimoiy fanlardan test" loyihasining ilovasiga xush kelibsiz!!!\n` +
         `– Bu ilovada testlar yechishingiz ,
-        fanlarga doir qo‘llanmalardan  foydalanishingiz mumkin.` +
+        fanlarga doir qo‘llanmalardan  foydalanishingiz mumkin.\n` +
         `– Murojaat yo'llash uchun @Muarrix_support ga yozing.`;
 
       await ctx.reply(
