@@ -152,19 +152,12 @@ export class TelegramUserService {
     return user;
   }
 
-  async update(id: string, dto: UpdateTelegramUserDto) {
+  async update(id: string, data: UpdateTelegramUserDto) {
     await this.findOne(id);
 
     return this.prisma.telegramUser.update({
       where: { id: BigInt(id) },
-      data: {
-        first_name: dto.first_name,
-        last_name: dto.last_name,
-        username: dto.username,
-        photo_url: dto.photo_url,
-        is_blocked: dto.is_blocked,
-        balance: dto.balance,
-      },
+      data,
     });
   }
 

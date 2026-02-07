@@ -56,7 +56,7 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
   }
 
   async isChannelMember(userId: bigint): Promise<boolean> {
-    const channel = process.env.TELEGRAM_CHANNEL;
+    const channel = -1002091872036;
     if (!channel) {
       throw new Error('TELEGRAM_CHANNEL missing in env');
     }
